@@ -71,13 +71,24 @@ Create/modify variable group `MCA-Billing-Variables` if necessary:
 | `BILLING_PROFILE_ID` | Your billing profile ID | No |
 | `INVOICE_SECTION_NAME` | Your invoice section name | No |
 
-### 2. Run the Pipeline
+### 2. Create the Pipeline
+
+1. Navigate to your Azure Devops Pipelines
+2. Select New Pipeline
+3. Select Azure Repos Git
+4. Select your repository
+5. Select Existing Azure Pipelines YAML file
+6. Select /pipeline-subcreation.yml
+7. Save (dropdown next to Run)
+
+### 3. Run the Pipeline
 
 1. Navigate to your Azure DevOps pipeline
 2. Click **"Run pipeline"**
 3. Enter subscription name (e.g., `map-application-weu-prd`)
 4. Select workload type (`Production` or `Development`)
 5. Execute
+6. You will be prompted to add permissions to pipeline/repo, make sure you grant them
 
 ## 📁 Repository Structure
 
