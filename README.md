@@ -131,7 +131,7 @@ $env:SOURCE_TENANT_ID = "yoursourceid"
 # ... (set other variables)
 
 # Run script
-.\subcreation.ps1 -SubscriptionName "map-application-weu-prd" -Workload "Development"
+.\subcreation.ps1 -SubscriptionName "map-application-weu-dev" -Workload "Development"
 ```
 
 ## 📊 Expected Output
