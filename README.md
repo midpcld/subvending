@@ -6,13 +6,6 @@ Programmatically create Microsoft Customer Agreement (MCA) subscriptions across 
 
 This solution enables automated creation of Azure subscriptions in a destination tenant while billing them to a source tenant's MCA account. 
 
-### Our Configuration
-- **Source Tenant:** `your source tenant name` (ID: `your source tenant ID`)
-- **Destination Tenant:** `your destination tenant name` (ID: `your destination tenant id`)
-- **Billing Account:** `your billing account id`
-- **Billing Profile:** `your billing profile id`
-- **Invoice Section:** `your invoice section name`
-
 ## 🏗️ How It Works
 
 The solution implements Microsoft's official two-phase cross-tenant subscription creation process:
@@ -55,11 +48,15 @@ Required for specifying subscription owner:
 Get-AzADServicePrincipal -ApplicationId [dest-app-client-id] | Select-Object -Property Id
 ```
 
+### 4. Copy this repository to your DevOps Project
+
+### 5. Follow the Quick Start section next. 
+
 ## 🚀 Quick Start
 
 ### 1. Configure Azure DevOps Variables
 
-Modify variable group `MCA-Billing-Variables` if necessary:
+Create/modify variable group `MCA-Billing-Variables` if necessary:
 
 | Variable | Value | Secret |
 |----------|-------|--------|
@@ -78,7 +75,7 @@ Modify variable group `MCA-Billing-Variables` if necessary:
 
 1. Navigate to your Azure DevOps pipeline
 2. Click **"Run pipeline"**
-3. Enter subscription name (e.g., `map-application-c9999-001`)
+3. Enter subscription name (e.g., `map-application-weu-prd`)
 4. Select workload type (`Production` or `Development`)
 5. Execute
 
