@@ -1,0 +1,105 @@
+trigger: none
+
+parameters:
+- name: subscriptionName
+  displayName: 'Subscription Name'
+  type: string
+  default: 'map-application-weu-prd'
+
+- name: workload
+  displayName: 'Workload Type'
+  type: string
+  default: 'Production'
+  values:
+  - Production
+  - Development
+
+variables:
+- group: 'MCA-Billing-Variables' # Variable group containing your secrets
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- checkout: self
+  displayName: 'Checkout Repository'
+
+- task: PowerShell@2
+  displayName: 'Create MCA Cross-Tenant Subscription'
+  inputs:
+    filePath: 'subcreation.ps1'
+    arguments: '-SubscriptionName "${{ parameters.subscriptionName }}" -Workload "${{ parameters.workload }}"'
+    pwsh: true
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+  env:
+    # Source tenant configuration
+    SOURCE_TENANT_ID: $(SOURCE_TENANT_ID)
+    SOURCE_CLIENT_ID: $(SOURCE_CLIENT_ID)
+    SOURCE_CLIENT_SECRET: $(SOURCE_CLIENT_SECRET)
+    
+    # Destination tenant configuration  
+    DEST_TENANT_ID: $(DEST_TENANT_ID)
+    DEST_CLIENT_ID: $(DEST_CLIENT_ID)
+    DEST_CLIENT_SECRET: $(DEST_CLIENT_SECRET)
+    DEST_SERVICE_PRINCIPAL_ID: $(DEST_SERVICE_PRINCIPAL_ID)
+    
+    # Billing configuration
+    BILLING_ACCOUNT_ID: $(BILLING_ACCOUNT_ID)
+    BILLING_PROFILE_ID: $(BILLING_PROFILE_ID)
+    INVOICE_SECTION_NAME: $(INVOICE_SECTION_NAME)
+
+- task: PowerShell@2
+  displayName: 'Display Subscription Creation Results'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Output "========================================="
+      Write-Output "SUBSCRIPTION CREATION SUMMARY"
+      Write-Output "========================================="
+      Write-Output "Created Subscription ID: $(CreatedSubscriptionId)"
+      Write-Output "Created Subscription Name: $(CreatedSubscriptionName)"
+      Write-Output "Final Status: $(CreatedSubscriptionStatus)"
+      Write-Output "========================================="
+      
+      # Add tags to build (escape colons to avoid security errors)
+      $subscriptionName = "$(CreatedSubscriptionName)" -replace ":", "_"
+      $status = "$(CreatedSubscriptionStatus)" -replace ":", "_"
+      
+      Write-Output "##vso[build.addbuildtag]subscription_$subscriptionName"
+      Write-Output "##vso[build.addbuildtag]tenant_desttenant"
+      Write-Output "##vso[build.addbuildtag]status_$status"
+      
+      # Also add to build summary (alternative way to display results)
+      Write-Output "##vso[task.setvariable variable=BuildSummary]Subscription: $(CreatedSubscriptionName) | ID: $(CreatedSubscriptionId) | Status: $(CreatedSubscriptionStatus)"
+    pwsh: true
+  condition: always()
+
+- task: PowerShell@2
+  displayName: 'Validate Subscription Creation'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $status = "$(CreatedSubscriptionStatus)"
+      $subscriptionId = "$(CreatedSubscriptionId)"
+      
+      if ([string]::IsNullOrEmpty($subscriptionId)) {
+        Write-Error "Subscription ID was not created"
+        exit 1
+      }
+      
+      if ($status -eq "PartialSuccess") {
+        Write-Warning "Subscription was created but ownership acceptance failed"
+        Write-Warning "Manual intervention may be required in destination tenant"
+        Write-Output "Subscription ID: $subscriptionId"
+        exit 0
+      }
+      
+      if ($status -ne "Succeeded") {
+        Write-Error "Subscription creation failed with status: $status"
+        exit 1
+      }
+      
+      Write-Output "✓ Subscription creation validation passed"
+      Write-Output "Subscription ID: $subscriptionId"
+    pwsh: true
+  condition: always()
