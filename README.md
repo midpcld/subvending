@@ -240,3 +240,11 @@ For detailed debugging, add debug parameters:
 ## Kudos
 
 Thanks Justin Venter for the guidelines! 
+
+## Disclaimer
+
+Created by: midp.cloud
+This project is provided as-is to simplify Microsoft's official subvending guidelines. It is offered free of charge with no support, warranty, or guarantee of any kind.
+Use at your own risk. The creator assumes no responsibility for any issues, damages, or consequences arising from the use of this project.
+
+This is an unofficial simplification - always refer to Microsoft's official documentation for authoritative guidance.
